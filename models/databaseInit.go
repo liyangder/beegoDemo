@@ -1,14 +1,26 @@
 package models
 
 import (
-	"net/url"
-
+	"fmt"
 	"github.com/astaxie/beego"
-	"github.com/astaxie/beego/orm"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/go-xorm/xorm"
+	"math/rand"
+	"net/url"
+	"os"
+	"time"
+)
+
+var (
+	dbm         *xorm.Engine
+	dbs         []*xorm.Engine
+	check_count int
 )
 
 func init() {
+	var err error
+
+	//主库添加
 	dbhost := beego.AppConfig.String("db.host")
 	dbport := beego.AppConfig.String("db.port")
 	dbuser := beego.AppConfig.String("db.user")
@@ -18,23 +30,63 @@ func init() {
 	if dbport == "" {
 		dbport = "3306"
 	}
-	dsn := dbuser + ":" + dbpassword + "@tcp(" + dbhost + ":" + dbport + ")/" + dbname + "?charset=utf8"
-	// fmt.Println(dsn)
+	m_dsn := dbuser + ":" + dbpassword + "@tcp(" + dbhost + ":" + dbport + ")/" + dbname + "?charset=utf8"
 
 	if timezone != "" {
-		dsn = dsn + "&loc=" + url.QueryEscape(timezone)
+		m_dsn = m_dsn + "&loc=" + url.QueryEscape(timezone)
 	}
 
-	orm.RegisterDataBase("default", "mysql", dsn)
+	dbm, err = xorm.NewEngine("mysql", m_dsn)
+	dbm.SetMaxIdleConns(10)
+	dbm.SetMaxOpenConns(200)
+	dbm.ShowSQL(true)
+	dbm.ShowExecTime(true)
 
-	//注册对象
-	orm.RegisterModel(new(Auth))
 
-	if beego.AppConfig.String("runmode") == "dev" {
-		orm.Debug = true
+
+	if err != nil {
+		fmt.Printf("Fail to connect to master: %v", err)
+		os.Exit(1)
 	}
+
+
+
 }
 
-func TableName(name string) string {
-	return beego.AppConfig.String("db.prefix") + name
+func GetMaster() *xorm.Engine {
+	return dbm
+}
+
+func GetSlave() *xorm.Engine {
+	rand.Seed(time.Now().Unix())
+	rn := rand.Intn(len(dbs) - 1)
+	return dbs[rn]
+}
+
+
+func DbCheck() {
+	check_count++
+	fmt.Printf("Begin->数据库检查:第%d次\n",check_count)
+
+	if dbm != nil {
+
+		// Raw SQL
+		dbm_err:= dbm.Ping()
+
+		if dbm_err != nil {
+			fmt.Println("=!!!=主库报警处理")
+			fmt.Println(dbm_err)
+
+		} else {
+			fmt.Println("--主数据库查询正常！")
+		}
+	} else {
+		fmt.Println("=!!!=主数据库连接异常！")
+	}
+
+	fmt.Println("==\n")
+
+	//xorm reverse mysql root:@/blog?charset=utf8 templates/goxorm
+
+
 }
