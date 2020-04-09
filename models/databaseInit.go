@@ -42,14 +42,10 @@ func init() {
 	dbm.ShowSQL(true)
 	dbm.ShowExecTime(true)
 
-
-
 	if err != nil {
 		fmt.Printf("Fail to connect to master: %v", err)
 		os.Exit(1)
 	}
-
-
 
 }
 
@@ -63,15 +59,14 @@ func GetSlave() *xorm.Engine {
 	return dbs[rn]
 }
 
-
 func DbCheck() {
 	check_count++
-	fmt.Printf("Begin->数据库检查:第%d次\n",check_count)
+	fmt.Printf("Begin->数据库检查:第%d次\n", check_count)
 
 	if dbm != nil {
 
 		// Raw SQL
-		dbm_err:= dbm.Ping()
+		dbm_err := dbm.Ping()
 
 		if dbm_err != nil {
 			fmt.Println("=!!!=主库报警处理")
@@ -86,7 +81,6 @@ func DbCheck() {
 
 	fmt.Println("==\n")
 
-	//xorm reverse mysql root:@/blog?charset=utf8 templates/goxorm
-
-
 }
+
+//xorm reverse mysql root:@/blog?charset=utf8 templates/goxorm entity/

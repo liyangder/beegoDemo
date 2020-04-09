@@ -2,13 +2,10 @@ package controllers
 
 import (
 	"beegoDemo/models"
-	"fmt"
-	"github.com/astaxie/beego"
-	"github.com/astaxie/beego/orm"
 )
 
 type AuthContr struct {
-	beego.Controller
+	BaseContr
 }
 
 func (c *AuthContr) Index() {
@@ -16,15 +13,8 @@ func (c *AuthContr) Index() {
 }
 
 func (c *AuthContr) GetUser() {
-	o := orm.NewOrm()
-	auth := models.Auth{Id: 1}
-	err := o.Read(&auth)
+	oauth := new(models.Auth)
+	res := oauth.Find()
+	c.out_success(res)
 
-	if err == orm.ErrNoRows {
-		fmt.Println("查询不到")
-	} else if err == orm.ErrMissPK {
-		fmt.Println("找不到主键")
-	} else {
-		fmt.Println(auth.Id, auth.Username)
-	}
 }

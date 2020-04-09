@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"beegoDemo/models"
+	"beegoDemo/entity"
 	"fmt"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
@@ -17,7 +17,7 @@ func (c *IndexContr) Index() {
 
 func (c *IndexContr) GetUser() {
 	o := orm.NewOrm()
-	auth := models.Auth{Id: 1}
+	auth := entity.Auth{Id: 1}
 	err := o.Read(&auth)
 
 	if err == orm.ErrNoRows {
