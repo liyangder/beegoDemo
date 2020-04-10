@@ -8,14 +8,11 @@ type Auth struct {
 	Password string `json:"password" xorm:"default '' comment('密码') VARCHAR(50)"`
 }
 
-func (m *Auth) Find() map[int]Auth {
-	users := make(map[int]Auth)
-	err := dbm.Id(2).Where("id > ?", 1).Desc("id").Find(&users)
+func (m *Auth) Get() []Auth {
+	users := make([]Auth, 0)
+	err := dbm.Where("id > ?", 100).Desc("id").Find(&users)
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println(users)
 	return users
-	//fmt.Println(err)
-	//fmt.Println("sjsj")
 }

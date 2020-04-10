@@ -14,7 +14,7 @@ func (c *AuthContr) Index() {
 
 func (c *AuthContr) GetUser() {
 	oauth := new(models.Auth)
-	res := oauth.Find()
+	res := oauth.Get()
 	c.out_success(res)
 
 }
